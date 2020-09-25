@@ -1,0 +1,4 @@
+.vim/
+app.db
+__pycache__
+notes.txt
