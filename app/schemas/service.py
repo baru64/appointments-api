@@ -7,7 +7,7 @@ from pydantic import BaseModel
 class ServiceBase(BaseModel):
     name: str
     description: Optional[str]
-    consumers_at_once: int = 1
+    customers_at_once: int = 1
     available_from: time
     available_to: time
     available_days: str = "mon,tue,wed,thu,fri"

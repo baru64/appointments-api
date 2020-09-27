@@ -22,7 +22,7 @@ class Service(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
     description = Column(String)
-    consumers_at_once = Column(Integer)
+    customers_at_once = Column(Integer)
     available_from = Column(Time)
     available_to = Column(Time)
     available_days = Column(String)
