@@ -4,8 +4,8 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
-class Consumer(Base):
-    __tablename__ = "consumers"
+class Customer(Base):
+    __tablename__ = "customers"
 
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String)
@@ -13,7 +13,7 @@ class Consumer(Base):
     tel_number = Column(String)
     email = Column(String)
 
-    appointments = relationship("Appointments", back_populates="consumer")
+    appointments = relationship("Appointment", back_populates="customer")
 
 
 class Service(Base):
@@ -23,13 +23,13 @@ class Service(Base):
     name = Column(String, unique=True, index=True)
     description = Column(String)
     consumers_at_once = Column(Integer)
-    availible_from = Column(Time)
-    availible_to = Column(Time)
-    availible_days = Column(String)
+    available_from = Column(Time)
+    available_to = Column(Time)
+    available_days = Column(String)
     duration = Column(Time)
     price = Column(Integer)
 
-    appointments = relationship("Appointments", back_populates="service")
+    appointments = relationship("Appointment", back_populates="service")
 
 
 class Appointment(Base):
@@ -39,7 +39,7 @@ class Appointment(Base):
     description = Column(String)
     date = Column(DateTime)
     service_id = Column(Integer, ForeignKey("services.id"))
-    consumer_id = Column(Integer, ForeignKey("consumers.id"))
+    customer_id = Column(Integer, ForeignKey("customers.id"))
 
     service = relationship("Service", back_populates="appointments")
-    consumer = relationship("Consumer", back_populates="appointments")
+    customer = relationship("Customer", back_populates="appointments")

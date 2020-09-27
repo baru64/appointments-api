@@ -21,7 +21,7 @@ class CustomerUpdate(CustomerBase):
 
 
 class CustomerInDBBase(CustomerBase):
-    id: Optional[int]
+    id: int
 
     class Config:
         orm_mode = True
