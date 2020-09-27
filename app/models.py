@@ -1,4 +1,12 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Time, DateTime
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    Time,
+    DateTime,
+    Interval
+)
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -13,7 +21,8 @@ class Customer(Base):
     tel_number = Column(String)
     email = Column(String)
 
-    appointments = relationship("Appointment", back_populates="customer")
+    appointments = relationship("Appointment", cascade="all, delete",
+                                back_populates="customer")
 
 
 class Service(Base):
@@ -26,10 +35,11 @@ class Service(Base):
     available_from = Column(Time)
     available_to = Column(Time)
     available_days = Column(String)
-    duration = Column(Time)
+    duration = Column(Interval)
     price = Column(Integer)
 
-    appointments = relationship("Appointment", back_populates="service")
+    appointments = relationship("Appointment", cascade="all, delete",
+                                back_populates="service")
 
 
 class Appointment(Base):

@@ -10,7 +10,7 @@ class ServiceBase(BaseModel):
     customers_at_once: int = 1
     available_from: time
     available_to: time
-    available_days: str = "mon,tue,wed,thu,fri"
+    available_days: str = "0,1,2,3,4"
     duration: time
     price: int
 
