@@ -5,11 +5,24 @@ from sqlalchemy import (
     String,
     Time,
     DateTime,
-    Interval
+    Interval,
+    Boolean
 )
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+
+
+# class User(Base):
+#     __tablename__ = "users"
+#
+#     id = Column(Integer, primary_key=True, index=True)
+#     email = Column(String, unique=True, index=True, nullable=False)
+#     hashed_password = Column(String, nullable=False)
+#     is_superuser = Column(Boolean(), default=False)
+#
+#     customer = relationship("Customer", cascade="all, delete",
+#                             back_populates="user")
 
 
 class Customer(Base):
@@ -21,6 +34,8 @@ class Customer(Base):
     tel_number = Column(String)
     email = Column(String)
 
+#     user = relationship("User", single_parent=True,
+#                         back_populates="customer")
     appointments = relationship("Appointment", cascade="all, delete",
                                 back_populates="customer")
 

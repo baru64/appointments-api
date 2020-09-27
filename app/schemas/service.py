@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import time
+from datetime import time, timedelta
 
 from pydantic import BaseModel
 
@@ -11,7 +11,7 @@ class ServiceBase(BaseModel):
     available_from: time
     available_to: time
     available_days: str = "0,1,2,3,4"
-    duration: time
+    duration: timedelta
     price: int
 
 
