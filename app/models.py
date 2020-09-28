@@ -1,3 +1,5 @@
+from zlib import adler32
+
 from sqlalchemy import (
     Column,
     ForeignKey,
@@ -39,6 +41,12 @@ class Customer(Base):
     appointments = relationship("Appointment", cascade="all, delete",
                                 back_populates="customer")
 
+    def get_checksum(self) -> int:
+        data_str = "{}{}{}{}".format(self.first_name, self.last_name,
+                                     self.tel_number, self.email)
+        data_b = data_str.encode('utf-8')
+        return adler32(data_b)
+
 
 class Service(Base):
     __tablename__ = "services"
@@ -56,6 +64,14 @@ class Service(Base):
     appointments = relationship("Appointment", cascade="all, delete",
                                 back_populates="service")
 
+    def get_checksum(self) -> int:
+        data_str = "{}{}{}{}{}{}{}{}".format(
+            self.name, self.description, self.customers_at_once,
+            self.available_from, self.available_to,
+            self.available_days, self.duration, self.price)
+        data_b = data_str.encode('utf-8')
+        return adler32(data_b)
+
 
 class Appointment(Base):
     __tablename__ = "appointments"
@@ -68,3 +84,9 @@ class Appointment(Base):
 
     service = relationship("Service", back_populates="appointments")
     customer = relationship("Customer", back_populates="appointments")
+
+    def get_checksum(self) -> int:
+        data_str = "{}{}{}{}".format(self.description,self.date,
+                                     self.service_id,self.customer_id)
+        data_b = data_str.encode('utf-8')
+        return adler32(data_b)
