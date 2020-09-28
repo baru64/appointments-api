@@ -38,11 +38,11 @@ def update(
     customer_in: schemas.CustomerUpdate
 ) -> models.Customer:
     customer_data = jsonable_encoder(db_customer)
-    if isinstance(customer_data, dict):
-        update_data = customer_data
+    if isinstance(customer_in, dict):
+        update_data = customer_in
     else:
-        update_data = db_customer.dict(exclude_unset=True)
-    for field in db_customer:
+        update_data = customer_in.dict(exclude_unset=True)
+    for field in customer_data:
         if field in update_data:
             setattr(db_customer, field, update_data[field])
     db.add(db_customer)

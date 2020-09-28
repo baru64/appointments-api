@@ -1,6 +1,6 @@
-from typing import List, Any
+from typing import List, Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Header
 from sqlalchemy.orm import Session
 
 from app import schemas, crud
@@ -11,6 +11,7 @@ router = APIRouter()
 
 @router.post("/", response_model=schemas.Appointment, status_code=201)
 def create_appointment(
+    response: Response,
     appointment: schemas.AppointmentCreate,
     db: Session = Depends(deps.get_db)
 ) -> Any:
@@ -40,6 +41,7 @@ def create_appointment(
                             detail="Service not available at this date")
 
     db_appointment = crud.appointment.create(db, appointment)
+    response.headers['ETag'] = str(db_appointment.get_checksum())
     return db_appointment
 
 
@@ -57,12 +59,14 @@ def read_appointments(
             response_model=schemas.Appointment,
             status_code=200)
 def read_appointment(
+    response: Response,
     appointment_id: int,
     db: Session = Depends(deps.get_db)
 ) -> Any:
     db_appointment = crud.appointment.get_by_id(db, appointment_id)
     if db_appointment is None:
         raise HTTPException(status_code=404, detail="Appointment not found")
+    response.headers['ETag'] = str(db_appointment.get_checksum())
     return db_appointment
 
 
@@ -70,9 +74,11 @@ def read_appointment(
             response_model=schemas.Appointment,
             status_code=200)
 def update_appointment(
+    response: Response,
     appointment_id: int,
     appointment: schemas.AppointmentUpdate,
-    db: Session = Depends(deps.get_db)
+    db: Session = Depends(deps.get_db),
+    if_match: Optional[str] = Header(None)
 ) -> Any:
     db_appointment = crud.appointment.get_by_id(db, appointment_id)
     if db_appointment is None:
@@ -102,8 +108,13 @@ def update_appointment(
             len(other_appointments) >= service.customers_at_once):
         raise HTTPException(status_code=409,
                             detail="Service not available at this date")
-
+    # check etag
+    etag = db_appointment.get_checksum()
+    if if_match is not None and str(etag) != if_match:
+        raise HTTPException(status_code=412,
+                            detail="ETag doesn't match current resource state")
     db_appointment = crud.appointment.update(db, db_appointment, appointment)
+    response.headers['ETag'] = str(db_appointment.get_checksum())
     return db_appointment
 
 # @router.patch("/{appointment_id}")

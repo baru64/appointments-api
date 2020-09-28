@@ -1,6 +1,6 @@
-from typing import List, Any
+from typing import List, Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Header
 from sqlalchemy.orm import Session
 
 from app import schemas, crud
@@ -11,10 +11,12 @@ router = APIRouter()
 
 @router.post("/", response_model=schemas.Service, status_code=201)
 def create_service(
+    response: Response,
     service: schemas.ServiceCreate,
     db: Session = Depends(deps.get_db)
 ) -> Any:
     db_service = crud.service.create(db, service)
+    response.headers['ETag'] = str(db_service.get_checksum())
     return db_service
 
 
@@ -30,25 +32,34 @@ def read_services(
 
 @router.get("/{service_id}", response_model=schemas.Service, status_code=200)
 def read_service(
+    response: Response,
     service_id: int,
     db: Session = Depends(deps.get_db)
 ) -> Any:
     db_service = crud.service.get_by_id(db, service_id)
     if db_service is None:
         raise HTTPException(status_code=404, detail="Service not found")
+    response.headers['ETag'] = str(db_service.get_checksum())
     return db_service
 
 
 @router.put("/{service_id}", response_model=schemas.Service, status_code=200)
 def update_service(
+    response: Response,
     service_id: int,
     service: schemas.ServiceUpdate,
-    db: Session = Depends(deps.get_db)
+    db: Session = Depends(deps.get_db),
+    if_match: Optional[str] = Header(None)
 ) -> Any:
     db_service = crud.service.get_by_id(db, service_id)
     if db_service is None:
         raise HTTPException(status_code=404, detail="Service not found")
+    etag = db_service.get_checksum()
+    if if_match is not None and str(etag) != if_match:
+        raise HTTPException(status_code=412,
+                            detail="ETag doesn't match current resource state")
     db_service = crud.service.update(db, db_service, service)
+    response.headers['ETag'] = str(db_service.get_checksum())
     return db_service
 
 # @router.patch("/{service_id}")

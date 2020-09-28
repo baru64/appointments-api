@@ -56,10 +56,10 @@ def update(
 ) -> models.Appointment:
     appointment_data = jsonable_encoder(db_appointment)
     if isinstance(appointment_data, dict):
-        update_data = appointment_data
+        update_data = appointment_in
     else:
-        update_data = db_appointment.dict(exclude_unset=True)
-    for field in db_appointment:
+        update_data = appointment_in.dict(exclude_unset=True)
+    for field in appointment_data:
         if field in update_data:
             setattr(db_appointment, field, update_data[field])
     db.add(db_appointment)
